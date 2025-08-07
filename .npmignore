@@ -1,0 +1,8 @@
+# .npmignore
+/node_modules
+/src
+rollup.config.mjs
+tsconfig.json
+.gitignore
+/storybook-static
+# Add any other config or dev folders you don't want published
