@@ -185,11 +185,9 @@ const logoProps: DiellLogoProps = {
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+As this is a proprietary project, direct contributions via pull requests are not accepted. 
+
+If you have suggestions or have found a bug that you believe is critical, you are welcome to open an issue in the GitHub repository.
 
 ## License
 
