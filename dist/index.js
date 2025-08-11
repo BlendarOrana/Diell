@@ -49,11 +49,13 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
 var DiellLogo = function (_a) {
     var _b = _a.size, size = _b === void 0 ? 80 : _b, width = _a.width, height = _a.height, _c = _a.primaryColor, primaryColor = _c === void 0 ? '#fbbf24' : _c, // yellow-400
     _d = _a.secondaryColor, // yellow-400
-    secondaryColor = _d === void 0 ? '#f97316' : _d, // orange-500
-    _e = _a.inactiveColor, // orange-500
-    inactiveColor = _e === void 0 ? 'rgba(100,100,100,0.6)' : _e, textColor = _a.textColor, _f = _a.animationDuration, animationDuration = _f === void 0 ? 300 : _f, _g = _a.hoverScale, hoverScale = _g === void 0 ? 1.2 : _g, _h = _a.showText, showText = _h === void 0 ? true : _h, _j = _a.text, text = _j === void 0 ? 'DIELL' : _j, _k = _a.showBackground, showBackground = _k === void 0 ? false : _k, _l = _a.backgroundColor, backgroundColor = _l === void 0 ? '#f3f4f6' : _l, onClick = _a.onClick, externalOnMouseEnter = _a.onMouseEnter, externalOnMouseLeave = _a.onMouseLeave, _m = _a.className, className = _m === void 0 ? '' : _m, _o = _a.style, style = _o === void 0 ? {} : _o, _p = _a.containerStyle, containerStyle = _p === void 0 ? {} : _p, _q = _a.alt, alt = _q === void 0 ? 'Diell Logo' : _q, _r = _a.title, title = _r === void 0 ? 'Diell Logo' : _r;
+    secondaryColor = _d === void 0 ? '#f97316' : _d; // orange-500
+    _a.inactiveColor; // orange-500
+    var textColor = _a.textColor, halfColor = _a.halfColor, // New prop
+    upHalfColor = _a.upHalfColor, // New prop
+    _f = _a.animationDuration, // New prop
+    animationDuration = _f === void 0 ? 300 : _f, _g = _a.hoverScale, hoverScale = _g === void 0 ? 1.2 : _g, _h = _a.showText, showText = _h === void 0 ? true : _h, _j = _a.text, text = _j === void 0 ? 'DIELL' : _j, _k = _a.showBackground, showBackground = _k === void 0 ? false : _k, _l = _a.backgroundColor, backgroundColor = _l === void 0 ? '#f3f4f6' : _l, onClick = _a.onClick, externalOnMouseEnter = _a.onMouseEnter, externalOnMouseLeave = _a.onMouseLeave, _m = _a.className, className = _m === void 0 ? '' : _m, _o = _a.style, style = _o === void 0 ? {} : _o, _p = _a.containerStyle, containerStyle = _p === void 0 ? {} : _p, _q = _a.alt, alt = _q === void 0 ? 'Diell Logo' : _q, _r = _a.title, title = _r === void 0 ? 'Diell Logo' : _r;
     var _s = react.useState(false), isComplete = _s[0], setIsComplete = _s[1];
-    var _t = react.useState(0.8), lightingIntensity = _t[0], setLightingIntensity = _t[1];
     // Calculate dimensions
     var logoWidth = width || size;
     var logoHeight = height || size;
@@ -66,32 +68,46 @@ var DiellLogo = function (_a) {
     };
     var handleMouseEnter = function () {
         setIsComplete(true);
-        setLightingIntensity(1);
         externalOnMouseEnter === null || externalOnMouseEnter === void 0 ? void 0 : externalOnMouseEnter();
     };
     var handleMouseLeave = function () {
         setIsComplete(false);
-        setLightingIntensity(0.8);
         externalOnMouseLeave === null || externalOnMouseLeave === void 0 ? void 0 : externalOnMouseLeave();
     };
-    // Dynamic color calculation
-    var getActiveColor = function (intensity) {
-        return lightingIntensity > intensity ? primaryColor : inactiveColor;
+    // Color calculation - always active, only glow effects on hover
+    var getActiveColor = function () {
+        return primaryColor;
     };
     var getDynamicTextColor = function () {
         if (textColor)
             return textColor;
-        return lightingIntensity > 0.7 ? primaryColor : '#374151';
+        return primaryColor;
+    };
+    // Get ray color based on position and half_color/upHalfColor props
+    var getRayColor = function (rayIndex) {
+        var color = getActiveColor();
+        // Apply halfColor (left-right split) - rays 0-3 are right half
+        if (halfColor) {
+            var isRightHalf = rayIndex <= 3;
+            if (isRightHalf)
+                color = halfColor;
+        }
+        // Apply upHalfColor (up-down split) - rays 7, 0, 1, 2 are top half
+        if (upHalfColor) {
+            var isTopHalf = rayIndex === 7 || rayIndex === 0 || rayIndex === 1 || rayIndex === 2;
+            if (isTopHalf)
+                color = upHalfColor;
+        }
+        return color;
     };
     // Container component
     var LogoContent = function () {
-        // FIX: Advanced multi-layer text shadow for a "wrapping" glow effect
-        // This creates three stacked shadows: a tight "wrap", a main glow, and a soft ambient glow.
+        // Text glow effect - only on hover
         var textGlowEffect = isComplete
             ? "0 0 ".concat(logoSize * 0.03, "px ").concat(primaryColor, ", 0 0 ").concat(logoSize * 0.1, "px ").concat(primaryColor, ", 0 0 ").concat(logoSize * 0.2, "px ").concat(secondaryColor)
             : 'none';
         return (jsxRuntime.jsxs("div", { className: "relative cursor-pointer flex flex-col items-center justify-center ".concat(className), style: __assign({ width: logoWidth, height: showText ? "calc(".concat(logoHeight, "px + 40px)") : logoHeight }, style), onMouseEnter: handleMouseEnter, onMouseLeave: handleMouseLeave, onClick: onClick, title: title, role: "img", "aria-label": alt, children: [jsxRuntime.jsx("div", { className: "relative flex items-center justify-center", style: { width: logoSize, height: logoSize }, children: jsxRuntime.jsxs("div", { className: "absolute inset-0 rounded-full flex items-center justify-center transition-all ease-out", style: {
-                            borderColor: getActiveColor(0.3),
+                            borderColor: getActiveColor(),
                             transform: isComplete ? "scale(".concat(hoverScale, ")") : 'scale(1)',
                             transitionDuration: "".concat(animationDuration, "ms")
                         }, children: [isComplete && (jsxRuntime.jsx("div", { className: "absolute rounded-full transition-all ease-out", style: {
@@ -104,27 +120,42 @@ var DiellLogo = function (_a) {
                                     width: logoSize * 0.045,
                                     height: isComplete ? logoSize * 0.15 : logoSize * 0.1,
                                     transform: "rotate(".concat(i * 45, "deg) translateY(-").concat(isComplete ? rayTranslation.hover : rayTranslation.initial, "px)"),
-                                    backgroundColor: getActiveColor(0.3),
+                                    backgroundColor: getRayColor(i),
                                     boxShadow: isComplete
-                                        ? "0 0 ".concat(logoSize * 0.2, "px ").concat(primaryColor)
-                                        : lightingIntensity > 0.5
-                                            ? "0 0 ".concat(logoSize * 0.125, "px ").concat(primaryColor)
-                                            : 'none',
+                                        ? "0 0 ".concat(logoSize * 0.2, "px ").concat(getRayColor(i))
+                                        : 'none', // No glow when not hovering
                                     transition: "all ".concat(animationDuration, "ms ease-out")
-                                } }, i)); }), jsxRuntime.jsx("div", { className: "absolute rounded-full transition-all ease-out", style: {
+                                } }, i)); }), (halfColor || upHalfColor) ? (
+                            // Colored circle using gradient(s)
+                            jsxRuntime.jsx("div", { className: "absolute rounded-full transition-all ease-out", style: {
                                     width: isComplete ? logoSize * 0.25 : logoSize * 0.2,
                                     height: isComplete ? logoSize * 0.25 : logoSize * 0.2,
                                     left: '50%',
                                     top: '50%',
                                     transform: 'translate(-50%, -50%)',
-                                    backgroundColor: getActiveColor(0.2),
+                                    background: halfColor && upHalfColor
+                                        ? "conic-gradient(from 0deg, ".concat(upHalfColor, " 0deg, ").concat(upHalfColor, " 90deg, ").concat(getActiveColor(), " 90deg, ").concat(getActiveColor(), " 180deg, ").concat(getActiveColor(), " 180deg, ").concat(getActiveColor(), " 270deg, ").concat(upHalfColor, " 270deg, ").concat(upHalfColor, " 360deg)")
+                                        : halfColor
+                                            ? "linear-gradient(270deg, ".concat(halfColor, " 50%, ").concat(getActiveColor(), " 50%)")
+                                            : "linear-gradient(180deg, ".concat(upHalfColor, " 50%, ").concat(getActiveColor(), " 50%)"),
                                     boxShadow: isComplete
                                         ? "0 0 ".concat(logoSize * 0.3, "px ").concat(primaryColor, ", 0 0 ").concat(logoSize * 0.6, "px ").concat(secondaryColor)
-                                        : lightingIntensity > 0.4
-                                            ? "0 0 ".concat(logoSize * 0.2, "px ").concat(primaryColor)
-                                            : 'none',
+                                        : 'none',
                                     transitionDuration: "".concat(animationDuration, "ms")
-                                } })] }) }), showText && (jsxRuntime.jsx("h1", { className: "font-bold tracking-widest transition-all text-center mt-2", style: {
+                                } })) : (
+                            // Regular single-color circle
+                            jsxRuntime.jsx("div", { className: "absolute rounded-full transition-all ease-out", style: {
+                                    width: isComplete ? logoSize * 0.25 : logoSize * 0.2,
+                                    height: isComplete ? logoSize * 0.25 : logoSize * 0.2,
+                                    left: '50%',
+                                    top: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    backgroundColor: getActiveColor(),
+                                    boxShadow: isComplete
+                                        ? "0 0 ".concat(logoSize * 0.3, "px ").concat(primaryColor, ", 0 0 ").concat(logoSize * 0.6, "px ").concat(secondaryColor)
+                                        : 'none',
+                                    transitionDuration: "".concat(animationDuration, "ms")
+                                } }))] }) }), showText && (jsxRuntime.jsx("h1", { className: "font-bold tracking-widest transition-all text-center mt-2", style: {
                         fontSize: logoSize * 0.2,
                         color: getDynamicTextColor(),
                         textShadow: textGlowEffect,

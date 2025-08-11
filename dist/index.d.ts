@@ -8,6 +8,8 @@ interface DiellLogoProps {
     secondaryColor?: string;
     inactiveColor?: string;
     textColor?: string;
+    halfColor?: string;
+    upHalfColor?: string;
     animationDuration?: number;
     hoverScale?: number;
     showText?: boolean;

@@ -1,6 +1,6 @@
 {
   "name": "diell-logo",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A customizable, animated React logo component with TypeScript support",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

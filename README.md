@@ -50,6 +50,32 @@ function App() {
 }
 ```
 
+### Half-Color Effects
+
+```tsx
+// Right-left split
+<DiellLogo
+  size={120}
+  primaryColor="#fbbf24"
+  halfColor="#22c55e"
+/>
+
+// Top-bottom split
+<DiellLogo
+  size={120}
+  primaryColor="#fbbf24"
+  upHalfColor="#ef4444"
+/>
+
+// Both splits combined
+<DiellLogo
+  size={120}
+  primaryColor="#fbbf24"
+  halfColor="#22c55e"
+  upHalfColor="#3b82f6"
+/>
+```
+
 ### Logo Only (No Text)
 
 ```tsx
@@ -100,6 +126,8 @@ function App() {
 | `secondaryColor` | `string` | `'#f97316'` | Secondary color for glow effects |
 | `inactiveColor` | `string` | `'rgba(100,100,100,0.6)'` | Color when not hovered |
 | `textColor` | `string` | `undefined` | Color of the text (auto if not set) |
+| `halfColor` | `string` | `undefined` | Color for right half of circle and rays (0-3) |
+| `upHalfColor` | `string` | `undefined` | Color for top half of circle and rays (7,0,1,2) |
 | `animationDuration` | `number` | `300` | Animation duration in milliseconds |
 | `hoverScale` | `number` | `1.2` | Scale factor on hover |
 | `showText` | `boolean` | `true` | Whether to show the text below logo |

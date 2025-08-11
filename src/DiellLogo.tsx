@@ -11,6 +11,8 @@ export interface DiellLogoProps {
   secondaryColor?: string;
   inactiveColor?: string;
   textColor?: string;
+  halfColor?: string; // New prop for left-right half-color effect
+  upHalfColor?: string; 
 
   // Animation props
   animationDuration?: number;
@@ -45,6 +47,8 @@ const DiellLogo: React.FC<DiellLogoProps> = ({
   secondaryColor = '#f97316', // orange-500
   inactiveColor = 'rgba(100,100,100,0.6)',
   textColor,
+  halfColor, // New prop
+  upHalfColor, // New prop
   animationDuration = 300,
   hoverScale = 1.2,
   showText = true,
@@ -61,7 +65,6 @@ const DiellLogo: React.FC<DiellLogoProps> = ({
   title = 'Diell Logo',
 }) => {
   const [isComplete, setIsComplete] = useState(false);
-  const [lightingIntensity, setLightingIntensity] = useState(0.8);
 
   // Calculate dimensions
   const logoWidth = width || size;
@@ -77,31 +80,47 @@ const DiellLogo: React.FC<DiellLogoProps> = ({
 
   const handleMouseEnter = () => {
     setIsComplete(true);
-    setLightingIntensity(1);
     externalOnMouseEnter?.();
   };
 
   const handleMouseLeave = () => {
     setIsComplete(false);
-    setLightingIntensity(0.8);
     externalOnMouseLeave?.();
   };
 
-  // Dynamic color calculation
-  const getActiveColor = (intensity: number) => {
-    return lightingIntensity > intensity ? primaryColor : inactiveColor;
+  // Color calculation - always active, only glow effects on hover
+  const getActiveColor = () => {
+    return primaryColor;
   };
 
   const getDynamicTextColor = () => {
     if (textColor) return textColor;
-    return lightingIntensity > 0.7 ? primaryColor : '#374151';
+    return primaryColor;
+  };
+
+  // Get ray color based on position and half_color/upHalfColor props
+  const getRayColor = (rayIndex: number) => {
+    let color = getActiveColor();
+    
+    // Apply halfColor (left-right split) - rays 0-3 are right half
+    if (halfColor) {
+      const isRightHalf = rayIndex <= 3;
+      if (isRightHalf) color = halfColor;
+    }
+    
+    // Apply upHalfColor (up-down split) - rays 7, 0, 1, 2 are top half
+    if (upHalfColor) {
+      const isTopHalf = rayIndex === 7 || rayIndex === 0 || rayIndex === 1 || rayIndex === 2;
+      if (isTopHalf) color = upHalfColor;
+    }
+    
+    return color;
   };
 
   // Container component
   const LogoContent = () => {
     
-    // FIX: Advanced multi-layer text shadow for a "wrapping" glow effect
-    // This creates three stacked shadows: a tight "wrap", a main glow, and a soft ambient glow.
+    // Text glow effect - only on hover
     const textGlowEffect = isComplete
       ? `0 0 ${logoSize * 0.03}px ${primaryColor}, 0 0 ${logoSize * 0.1}px ${primaryColor}, 0 0 ${logoSize * 0.2}px ${secondaryColor}`
       : 'none';
@@ -128,7 +147,7 @@ const DiellLogo: React.FC<DiellLogoProps> = ({
           <div
             className="absolute inset-0 rounded-full flex items-center justify-center transition-all ease-out"
             style={{
-              borderColor: getActiveColor(0.3),
+              borderColor: getActiveColor(),
               transform: isComplete ? `scale(${hoverScale})` : 'scale(1)',
               transitionDuration: `${animationDuration}ms`
             }}
@@ -147,7 +166,7 @@ const DiellLogo: React.FC<DiellLogoProps> = ({
               />
             )}
   
-            {/* Sun rays */}
+            {/* Sun rays - with half-color support */}
             {[...Array(8)].map((_, i) => (
               <div
                 key={i}
@@ -156,35 +175,55 @@ const DiellLogo: React.FC<DiellLogoProps> = ({
                   width: logoSize * 0.045,
                   height: isComplete ? logoSize * 0.15 : logoSize * 0.1,
                   transform: `rotate(${i * 45}deg) translateY(-${isComplete ? rayTranslation.hover : rayTranslation.initial}px)`,
-                  backgroundColor: getActiveColor(0.3),
+                  backgroundColor: getRayColor(i),
                   boxShadow: isComplete
-                    ? `0 0 ${logoSize * 0.2}px ${primaryColor}`
-                    : lightingIntensity > 0.5
-                    ? `0 0 ${logoSize * 0.125}px ${primaryColor}`
-                    : 'none',
+                    ? `0 0 ${logoSize * 0.2}px ${getRayColor(i)}`
+                    : 'none', // No glow when not hovering
                   transition: `all ${animationDuration}ms ease-out`
                 }}
               />
             ))}
   
-            {/* Center circle */}
-            <div
-              className="absolute rounded-full transition-all ease-out"
-              style={{
-                width: isComplete ? logoSize * 0.25 : logoSize * 0.2,
-                height: isComplete ? logoSize * 0.25 : logoSize * 0.2,
-                left: '50%',
-                top: '50%',
-                transform: 'translate(-50%, -50%)',
-                backgroundColor: getActiveColor(0.2),
-                boxShadow: isComplete
-                  ? `0 0 ${logoSize * 0.3}px ${primaryColor}, 0 0 ${logoSize * 0.6}px ${secondaryColor}`
-                  : lightingIntensity > 0.4
-                  ? `0 0 ${logoSize * 0.2}px ${primaryColor}`
-                  : 'none',
-                transitionDuration: `${animationDuration}ms`
-              }}
-            />
+            {/* Center circle - with half-color and up-half-color support */}
+            {(halfColor || upHalfColor) ? (
+              // Colored circle using gradient(s)
+              <div
+                className="absolute rounded-full transition-all ease-out"
+                style={{
+                  width: isComplete ? logoSize * 0.25 : logoSize * 0.2,
+                  height: isComplete ? logoSize * 0.25 : logoSize * 0.2,
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  background: halfColor && upHalfColor 
+                    ? `conic-gradient(from 0deg, ${upHalfColor} 0deg, ${upHalfColor} 90deg, ${getActiveColor()} 90deg, ${getActiveColor()} 180deg, ${getActiveColor()} 180deg, ${getActiveColor()} 270deg, ${upHalfColor} 270deg, ${upHalfColor} 360deg)` 
+                    : halfColor 
+                    ? `linear-gradient(270deg, ${halfColor} 50%, ${getActiveColor()} 50%)`
+                    : `linear-gradient(180deg, ${upHalfColor} 50%, ${getActiveColor()} 50%)`,
+                  boxShadow: isComplete
+                    ? `0 0 ${logoSize * 0.3}px ${primaryColor}, 0 0 ${logoSize * 0.6}px ${secondaryColor}`
+                    : 'none',
+                  transitionDuration: `${animationDuration}ms`
+                }}
+              />
+            ) : (
+              // Regular single-color circle
+              <div
+                className="absolute rounded-full transition-all ease-out"
+                style={{
+                  width: isComplete ? logoSize * 0.25 : logoSize * 0.2,
+                  height: isComplete ? logoSize * 0.25 : logoSize * 0.2,
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  backgroundColor: getActiveColor(),
+                  boxShadow: isComplete
+                    ? `0 0 ${logoSize * 0.3}px ${primaryColor}, 0 0 ${logoSize * 0.6}px ${secondaryColor}`
+                    : 'none',
+                  transitionDuration: `${animationDuration}ms`
+                }}
+              />
+            )}
           </div>
         </div>
   
